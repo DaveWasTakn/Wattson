@@ -1,4 +1,6 @@
-package com.dave;
+package com.dave.StreamProcessor;
+
+import com.dave.Exception.HttpParseException;
 
 import java.util.ArrayList;
 import java.util.HashMap;
