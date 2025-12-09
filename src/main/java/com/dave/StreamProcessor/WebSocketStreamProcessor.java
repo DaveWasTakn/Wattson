@@ -18,6 +18,30 @@ public class WebSocketStreamProcessor implements StreamProcessor {
         this.outputStream = outputStream;
     }
 
+/* Websocket Base Framing Protocol:
+
+    0                   1                   2                   3
+    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+   +-+-+-+-+-------+-+-------------+-------------------------------+
+   |F|R|R|R| opcode|M| Payload len |    Extended payload length    |
+   |I|S|S|S|  (4)  |A|     (7)     |             (16/64)           |
+   |N|V|V|V|       |S|             |   (if payload len==126/127)   |
+   | |1|2|3|       |K|             |                               |
+   +-+-+-+-+-------+-+-------------+ - - - - - - - - - - - - - - - +
+   |     Extended payload length continued, if payload len == 127  |
+   + - - - - - - - - - - - - - - - +-------------------------------+
+   |                               |Masking-key, if MASK set to 1  |
+   +-------------------------------+-------------------------------+
+   | Masking-key (continued)       |          Payload Data         |
+   +-------------------------------- - - - - - - - - - - - - - - - +
+   :                     Payload Data continued ...                :
+   + - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+   |                     Payload Data continued ...                |
+   +---------------------------------------------------------------+
+
+source: https://datatracker.ietf.org/doc/html/rfc6455#section-5.2
+*/
+
     @Override
     public String read() throws WebSocketProtocolException {
         byte[] payload = parseWebsocketFrames();
@@ -26,7 +50,32 @@ public class WebSocketStreamProcessor implements StreamProcessor {
 
     @Override
     public void send(String message) throws IOException {
-        // TODO
+        // don't fragment websocket frames ... shouldn't be necessary
+        // a server MUST NOT mask frames
+
+        byte[] messageBytes = message.getBytes(StandardCharsets.UTF_8);
+
+        // FIN = 1, RSV values = 0, opcode = 1 (text)
+        // 1000 0001 = 0x81
+        this.outputStream.write(0x81);
+
+        // Mask = 0 + Payload length (depending on message size)
+        int msgLen = messageBytes.length;
+        if (msgLen <= 125) {
+            this.outputStream.write(msgLen); // length is positive and max 7 bits, so MSB (MASK) is always 0
+        } else if (msgLen <= 0xFFFF) { // length fits into unsigned 16 bit
+            this.outputStream.write(126);
+            this.outputStream.write((msgLen >> 8) & 0xFF);
+            this.outputStream.write(msgLen & 0xFF);
+        } else { // 64-bit
+            this.outputStream.write(127);
+            ByteBuffer bb = ByteBuffer.allocate(8);
+            bb.putLong(messageBytes.length);
+            this.outputStream.write(bb.array());
+        }
+
+        this.outputStream.write(messageBytes);
+        this.outputStream.flush();
     }
 
     private byte[] parseWebsocketFrames() throws WebSocketProtocolException {

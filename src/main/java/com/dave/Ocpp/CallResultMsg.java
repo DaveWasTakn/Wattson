@@ -2,6 +2,7 @@ package com.dave.Ocpp;
 
 import com.dave.Exception.OcppProtocolException;
 import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 
 import java.util.List;
 
@@ -22,5 +23,14 @@ public record CallResultMsg(
                 items.get(1).stringValue(),
                 items.get(2)
         );
+    }
+
+    @Override
+    public String serialize() {
+        return new ObjectMapper().valueToTree(List.of(
+                this.messageTypeId,
+                this.uniqueId,
+                this.payload
+        )).toString();
     }
 }

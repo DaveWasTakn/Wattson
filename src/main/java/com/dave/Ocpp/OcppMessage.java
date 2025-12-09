@@ -24,5 +24,6 @@ public sealed interface OcppMessage permits CallMsg, CallResultMsg, CallErrorMsg
         }
     }
 
+    String serialize();
 
 }

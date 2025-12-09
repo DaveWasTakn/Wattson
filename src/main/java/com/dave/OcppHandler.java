@@ -61,14 +61,14 @@ public class OcppHandler implements Runnable {
                 break;
             }
             logIncoming(msg);
-            this.handleReq(msg, streamProcessor);
+            this.handleReq(msg);
         }
     }
 
-    private void handleReq(String msg, StreamProcessor streamProcessor) {
+    private void handleReq(String msg) {
         try {
             if (!protocolUpgraded) {
-                handleHttpUpgradeReq(msg, streamProcessor);
+                handleHttpUpgradeReq(msg);
             } else {
                 this.ocppProtocol.onMsg(msg);
             }
@@ -89,7 +89,7 @@ public class OcppHandler implements Runnable {
         }
     }
 
-    private void handleHttpUpgradeReq(String msg, StreamProcessor streamProcessor) throws ProtocolException {
+    private void handleHttpUpgradeReq(String msg) throws ProtocolException {
         HTTPReq req;
         try {
             req = HTTPReq.parse(msg);
@@ -104,13 +104,13 @@ public class OcppHandler implements Runnable {
                         && req.headers().containsKey("Sec-WebSocket-Protocol")
                         && req.headers().containsKey("Sec-WebSocket-Version")
         ) {
-            this.confirmUpgradeReq(req.headers().get("Sec-WebSocket-Key"), streamProcessor);
+            this.confirmUpgradeReq(req.headers().get("Sec-WebSocket-Key"));
 
             String requestedProtocols = req.headers().get("Sec-WebSocket-Protocol");
             if (requestedProtocols.isBlank() || !requestedProtocols.contains("ocpp1.6")) { // TODO refactor once other versions implemented
                 throw new OcppProtocolException("Requested OCPP versions: '" + requestedProtocols + "' not supported / yet implemented");
             } else {
-                this.ocppProtocol = new OcppProtocol_v16(streamProcessor);
+                this.ocppProtocol = new OcppProtocol_v16(this.webSocketStreamProcessor);
             }
         } else {
             System.out.println("Http upgrade message did not contain the necessary OCPP headers.");
@@ -118,7 +118,7 @@ public class OcppHandler implements Runnable {
         }
     }
 
-    private void confirmUpgradeReq(String secWebSocketKey, StreamProcessor streamProcessor) {
+    private void confirmUpgradeReq(String secWebSocketKey) {
         Map<String, String> headers = new HashMap<>();
         headers.put("Upgrade", "websocket");
         headers.put("Connection", "Upgrade");
@@ -133,7 +133,7 @@ public class OcppHandler implements Runnable {
 
         logOutgoing(upgradeConf);
         try {
-            streamProcessor.send(upgradeConf);
+            this.httpStreamProcessor.send(upgradeConf);
         } catch (IOException e) {
             System.out.println("Could not send upgrade request to " + this.clientInetAddress + "\n");
             throw new RuntimeException(e); // TODO what to do here, close connection here or maybe propagate exception up

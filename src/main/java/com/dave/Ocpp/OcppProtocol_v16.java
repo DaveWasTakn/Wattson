@@ -5,6 +5,7 @@ import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.node.ObjectNode;
 
 import java.io.IOException;
+import java.time.Instant;
 
 public class OcppProtocol_v16 extends OcppProtocol {
 
@@ -19,12 +20,13 @@ public class OcppProtocol_v16 extends OcppProtocol {
     }
 
     public void onCall_BootNotification(CallMsg message) throws IOException {
+        // TODO read info into a ChargePoint-obj
         ObjectNode payload = new ObjectMapper().createObjectNode();
-        payload.put("currentTime", System.currentTimeMillis());
+        payload.put("currentTime", Instant.now().toString());
         payload.put("interval", 60);
         payload.put("status", RegistrationStatus.ACCEPTED.getDisplayName());
 
-        this.streamProcessor.send(new CallResultMsg(3, message.uniqueId(), payload).toString());
+        this.streamProcessor.send(new CallResultMsg(3, message.uniqueId(), payload).serialize());
         System.out.println("BootNotification received");
     }
 
