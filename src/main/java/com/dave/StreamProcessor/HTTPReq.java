@@ -30,7 +30,7 @@ public record HTTPReq(String[] reqLine, Map<String, String> headers, String body
             if (split.length == 2) {
                 headers.put(split[0].trim(), split[1].trim());
             } else {
-                headers.put(s.trim(), ""); // TODO not clean; could loose last empty line
+                headers.put(s.trim(), "");
             }
         }
 

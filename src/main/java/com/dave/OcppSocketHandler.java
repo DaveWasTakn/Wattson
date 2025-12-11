@@ -1,6 +1,7 @@
 package com.dave;
 
 import com.dave.Exception.HttpParseException;
+import com.dave.Exception.HttpProtocolException;
 import com.dave.Exception.OcppProtocolException;
 import com.dave.Exception.ProtocolException;
 import com.dave.Logging.Logger;
@@ -84,9 +85,9 @@ public class OcppSocketHandler implements Runnable {
     }
 
     private void closeClientSocket() {
-        this.protocolUpgraded = false; // TODO shouldnt be necessary to set false: as soon as socket.close() this occphandler should die anyways? interrupt ? ALSO send a closing message to client!!!!
         try {
             LOGGER.print("Closing connection to " + clientIp);
+            // TODO send closing message?
             socket.close();
         } catch (IOException ex) {
             this.protocolUpgraded = false;
@@ -122,7 +123,7 @@ public class OcppSocketHandler implements Runnable {
         }
     }
 
-    private void confirmUpgradeReq(String ocppVersion, String secWebSocketKey) {
+    private void confirmUpgradeReq(String ocppVersion, String secWebSocketKey) throws HttpProtocolException {
         Map<String, String> headers = new HashMap<>();
         headers.put("Upgrade", "websocket");
         headers.put("Connection", "Upgrade");
@@ -139,8 +140,8 @@ public class OcppSocketHandler implements Runnable {
         try {
             this.httpStreamProcessor.send(upgradeConf);
         } catch (IOException e) {
-            LOGGER.print("Could not send upgrade request to " + this.clientIp + "\n");
-            throw new RuntimeException(e); // TODO what to do here, close connection here or maybe propagate exception up
+            LOGGER.print("Could not send upgrade request to " + this.clientIp);
+            throw new HttpProtocolException("Could not send upgrade request to " + this.clientIp);
         }
         this.protocolUpgraded = true;
     }

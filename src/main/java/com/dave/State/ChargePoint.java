@@ -33,18 +33,6 @@ public class ChargePoint {
         this.meterType = meterType;
     }
 
-    //    private final List<Runnable> observers = new ArrayList<>(); TODO observe changes not here, needs to happen higher up
-//
-//    public void registerObserver(Runnable runnable) {
-//        this.observers.add(runnable);
-//    }
-//
-//    private void notifyObservers() {
-//        for (Runnable runnable : this.observers) {  // TODO in separate threads
-//            runnable.run();
-//        }
-//    }
-
     public String getChargeBoxSerialNumber() {
         return chargeBoxSerialNumber;
     }

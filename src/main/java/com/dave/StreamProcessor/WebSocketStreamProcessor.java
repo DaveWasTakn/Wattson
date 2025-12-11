@@ -131,7 +131,8 @@ source: https://datatracker.ietf.org/doc/html/rfc6455#section-5.2
             // no extension data -> only application data
             if (PAYLOAD_LEN > Integer.MAX_VALUE) {
                 // very unlikely > 2GB payload ==> just cast to int for now
-                // TODO theoretically need to read in chunks
+                // theoretically need to read in chunks
+                throw new WebSocketProtocolException("Client request too large");
             }
             byte[] payload = readBytes((int) PAYLOAD_LEN);
             unmaskPayload(payload, MASKING_KEY);

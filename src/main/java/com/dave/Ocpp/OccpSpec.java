@@ -20,13 +20,11 @@ public abstract class OccpSpec {
         this.chargePoint = chargePoint;
     }
 
-    // TODO need some sort of STATE
-
     public void onMsg(String msg) throws OcppProtocolException {
         if (msg.isBlank() || msg.length() <= 2 || !msg.contains(",")) {
             throw new OcppProtocolException("Message received from " + this.chargePoint.getIpAddress() + " is malformed");
         }
-        int messageTypeId = Integer.parseInt(msg.substring(1, msg.indexOf(',')).trim()); // TODO exception on eg disconnect, need to handle that in websocketStreamProcessor with opcodes (probably)
+        int messageTypeId = Integer.parseInt(msg.substring(1, msg.indexOf(',')).trim());
 
         switch (messageTypeId) {
             case 2:
