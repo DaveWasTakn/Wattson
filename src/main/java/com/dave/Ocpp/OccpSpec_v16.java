@@ -8,6 +8,7 @@ import tools.jackson.databind.node.ObjectNode;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.function.Function;
@@ -39,15 +40,13 @@ public class OccpSpec_v16 extends OccpSpec {
             }
         });
 
-        LOGGER.print(this.chargePoint.toString());
-
-        ObjectNode payload = new ObjectMapper().createObjectNode();
-        payload.put("currentTime", Utils.dateTime());
-        payload.put("interval", 60);
-        payload.put("status", RegistrationStatus.ACCEPTED.getDisplayName());
+        ObjectNode payload = createPayload(
+                "currentTime", Utils.dateTime(),
+                "interval", 60, // TODO need interval for heartbeat check
+                "status", RegistrationStatus.ACCEPTED.getDisplayName()
+        );
 
         String callResult = new CallResultMsg(3, message.uniqueId(), payload).serialize();
-        LOGGER.logOutgoingMsg(callResult, this.chargePoint.getIpAddress());
         this.streamProcessor.send(callResult);
     }
 
@@ -63,8 +62,13 @@ public class OccpSpec_v16 extends OccpSpec {
         LOGGER.print("FirmwareStatusNotification received");
     }
 
-    public void onCall_Heartbeat(CallMsg message) {
-        LOGGER.print("Heartbeat received");
+    public void onCall_Heartbeat(CallMsg message) throws IOException {
+        // TODO track if chargepoint is alive; register timer somewhere ? but need interval
+        this.chargePoint.setLastHeartbeat(Instant.now());
+        ObjectNode payload = createPayload("currentTime", Utils.dateTime());
+
+        String callResult = new CallResultMsg(3, message.uniqueId(), payload).serialize();
+        this.streamProcessor.send(callResult);
     }
 
     public void onCall_MeterValues(CallMsg message) {
@@ -160,6 +164,20 @@ public class OccpSpec_v16 extends OccpSpec {
 
     public void req_UpdateFirmware() {
         LOGGER.print("UpdateFirmware requested");
+    }
+
+    /// ////////////////////////////////////////////////////////////////////////
+
+    private static ObjectNode createPayload(Object... kvs) {
+        if (kvs.length % 2 != 0) {
+            throw new IllegalArgumentException("Key value pairs must be an even number");
+        }
+        ObjectMapper mapper = new ObjectMapper();
+        ObjectNode payload = new ObjectMapper().createObjectNode();
+        for (int i = 0; i < kvs.length; i += 2) {
+            payload.set((String) kvs[i], mapper.valueToTree(kvs[i + 1]));
+        }
+        return payload;
     }
 
 }

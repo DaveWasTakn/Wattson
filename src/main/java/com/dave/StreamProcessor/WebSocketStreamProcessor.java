@@ -72,6 +72,8 @@ source: https://datatracker.ietf.org/doc/html/rfc6455#section-5.2
 
     @Override
     public void send(String message) throws IOException {
+        LOGGER.logOutgoingMsg(message, this.clientIp);
+
         // don't fragment websocket frames ... shouldn't be necessary
         // a server MUST NOT mask frames
 

@@ -48,7 +48,7 @@ public abstract class OccpSpec {
         try {
             m.invoke(this, message);
         } catch (IllegalAccessException | InvocationTargetException e) {
-            throw new OcppProtocolException("Could not invoke method: " + m.getName());
+            throw new OcppProtocolException("Could not invoke method: " + m.getName() + ": " + e.getMessage());
         }
     }
 

@@ -1,8 +1,11 @@
 package com.dave.State;
 
+import java.time.Instant;
+
 public class ChargePoint {
 
     private String ipAddress;
+
     @Deprecated
     private String chargeBoxSerialNumber;
     private String model;
@@ -15,22 +18,10 @@ public class ChargePoint {
     private String meterSerialNumber;
     private String meterType;
 
+    private Instant lastHeartbeat; // TODO create isAlive() method and check
+
     public ChargePoint(String ipAddress) {
         this.ipAddress = ipAddress;
-    }
-
-    public ChargePoint(String ipAddress, String chargeBoxSerialNumber, String model, String chargePointSerialNumber, String chargePointVendor, String firmwareVersion, String iccid, String imsi, String iccd, String meterSerialNumber, String meterType) {
-        this.ipAddress = ipAddress;
-        this.chargeBoxSerialNumber = chargeBoxSerialNumber;
-        this.model = model;
-        this.chargePointSerialNumber = chargePointSerialNumber;
-        this.chargePointVendor = chargePointVendor;
-        this.firmwareVersion = firmwareVersion;
-        this.iccid = iccid;
-        this.imsi = imsi;
-        this.iccd = iccd;
-        this.meterSerialNumber = meterSerialNumber;
-        this.meterType = meterType;
     }
 
     public String getChargeBoxSerialNumber() {
@@ -137,4 +128,13 @@ public class ChargePoint {
                 ", meterType='" + meterType + '\'' +
                 '}';
     }
+
+    public Instant getLastHeartbeat() {
+        return lastHeartbeat;
+    }
+
+    public void setLastHeartbeat(Instant lastHeartbeat) {
+        this.lastHeartbeat = lastHeartbeat;
+    }
+
 }
