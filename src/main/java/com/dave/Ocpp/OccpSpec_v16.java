@@ -29,8 +29,18 @@ public class OccpSpec_v16 extends OccpSpec {
 
     /// ////////////////////////////////////////////////////////////////////////
 
-    public void onCall_Authorize(CallMsg message) {
-        LOGGER.print("Authorize received");
+    public void onCall_Authorize(CallMsg message) throws IOException {
+        String idTag = message.payload().get("idTag").stringValue();
+        LOGGER.print("Authorize request received for id: '" + idTag + "'");
+
+        // TODO check authorize; database? config-file?
+
+        ObjectNode idTagInfo = new ObjectMapper().createObjectNode();
+        idTagInfo.put("status", AuthorizationStatus.ACCEPTED.getDisplayName());
+        idTagInfo.put("expiryDate", Utils.dateTimePlusMinutes(5)); // TODO change
+        // idTagInfo.put("parentIdTag", ??);
+        ObjectNode payload = createPayload("idTagInfo", idTagInfo);
+        this.streamProcessor.send(new CallResultMsg(message.uniqueId(), payload).serialize());
     }
 
     public void onCall_BootNotification(CallMsg message) throws IOException {
@@ -42,8 +52,7 @@ public class OccpSpec_v16 extends OccpSpec {
                 "status", RegistrationStatus.ACCEPTED.getDisplayName()
         );
 
-        String callResult = new CallResultMsg(3, message.uniqueId(), payload).serialize();
-        this.streamProcessor.send(callResult);
+        this.streamProcessor.send(new CallResultMsg(message.uniqueId(), payload).serialize());
     }
 
     public void onCall_DataTransfer(CallMsg message) {
@@ -83,7 +92,7 @@ public class OccpSpec_v16 extends OccpSpec {
             this.chargePoint.updateConnector(new Connector(connectorId, status));
         }
 
-        this.streamProcessor.send(new CallResultMsg(3, message.uniqueId(), new ObjectMapper().createObjectNode()).serialize());
+        this.streamProcessor.send(new CallResultMsg(message.uniqueId(), new ObjectMapper().createObjectNode()).serialize());
     }
 
     public void onCall_StopTransaction(CallMsg message) {
@@ -184,7 +193,7 @@ public class OccpSpec_v16 extends OccpSpec {
     }
 
     private static String currentTimeCallResult(String uniqueId) {
-        return new CallResultMsg(3, uniqueId, createPayload("currentTime", Utils.dateTime())).serialize();
+        return new CallResultMsg(uniqueId, createPayload("currentTime", Utils.dateTime())).serialize();
     }
 
     private static void fillAvailableFields(ObjectNode src, Object dest) {

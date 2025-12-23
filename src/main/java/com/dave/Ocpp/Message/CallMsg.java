@@ -15,6 +15,10 @@ public record CallMsg(
 ) implements OcppMessage {
     // Call: [<MessageTypeId>, "<UniqueId>", "<Action>", {<Payload>}]
 
+    public CallMsg(String uniqueId, String action, ObjectNode payload) {
+        this(2, uniqueId, action, payload);
+    }
+
     public static CallMsg fromMessage(String msg) throws OcppProtocolException {
         List<JsonNode> items = OcppMessage.getMsgItems(msg);
         if (items.size() != 4) {

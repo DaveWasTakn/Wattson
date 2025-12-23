@@ -1,12 +1,10 @@
-package com.dave;
+package com.dave.Ocpp;
 
 import com.dave.Exception.HttpParseException;
 import com.dave.Exception.HttpProtocolException;
 import com.dave.Exception.OcppProtocolException;
 import com.dave.Exception.ProtocolException;
 import com.dave.Logging.Logger;
-import com.dave.Ocpp.OccpSpec;
-import com.dave.Ocpp.OccpSpec_v16;
 import com.dave.Entity.ChargePoint;
 import com.dave.StreamProcessor.HTTPReq;
 import com.dave.StreamProcessor.HttpStreamProcessor;

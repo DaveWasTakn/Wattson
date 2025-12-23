@@ -16,6 +16,10 @@ public record CallErrorMsg(
 ) implements OcppMessage {
     // CallError: [<MessageTypeId>, "<UniqueId>", "<errorCode>", "<errorDescription>", {<errorDetails>}]
 
+    public CallErrorMsg(String uniqueId, String errorCode, String errorDescription, ObjectNode errorDetails) {
+        this(4, uniqueId, errorCode, errorDescription, errorDetails);
+    }
+
     public static CallErrorMsg fromMessage(String msg) throws OcppProtocolException {
         List<JsonNode> items = OcppMessage.getMsgItems(msg);
         if (items.size() != 5) {

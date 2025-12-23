@@ -14,6 +14,10 @@ public record CallResultMsg(
 ) implements OcppMessage {
     // CallResult: [<MessageTypeId>, "<UniqueId>", {<Payload>}]
 
+    public CallResultMsg(String uniqueId, ObjectNode payload) {
+        this(3, uniqueId, payload);
+    }
+
     public static CallResultMsg fromMessage(String msg) throws OcppProtocolException {
         List<JsonNode> items = OcppMessage.getMsgItems(msg);
         if (items.size() != 3) {
