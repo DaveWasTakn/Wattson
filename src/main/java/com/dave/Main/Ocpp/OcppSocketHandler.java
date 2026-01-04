@@ -59,18 +59,22 @@ public class OcppSocketHandler implements Runnable {
 
     @Override
     public void run() {
-        StreamProcessor streamProcessor;
-        while (!socket.isClosed()) {
-            streamProcessor = this.protocolUpgraded ? this.webSocketStreamProcessor : this.httpStreamProcessor;
-            String msg;
-            try {
-                msg = streamProcessor.read();
-            } catch (ProtocolException e) {
-                this.closeClientSocket();
-                break;
+        try {
+            StreamProcessor streamProcessor;
+            while (!socket.isClosed()) {
+                streamProcessor = this.protocolUpgraded ? this.webSocketStreamProcessor : this.httpStreamProcessor;
+                String msg;
+                try {
+                    msg = streamProcessor.read();
+                } catch (ProtocolException e) {
+                    this.closeClientSocket();
+                    break;
+                }
+                LOGGER.logIncomingMsg(msg, this.clientIp);
+                this.handleReq(msg);
             }
-            LOGGER.logIncomingMsg(msg, this.clientIp);
-            this.handleReq(msg);
+        } finally {
+            this.state.removeChargePoint(this.chargePoint);
         }
     }
 

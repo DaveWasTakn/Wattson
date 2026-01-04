@@ -1,6 +1,6 @@
 package com.dave.Vaadin.examplefeature.ui;
 
-import com.dave.Vaadin.ui.ViewToolbar;
+import com.dave.Vaadin.Layout.ViewToolbar;
 import com.dave.Vaadin.examplefeature.Task;
 import com.dave.Vaadin.examplefeature.TaskService;
 import com.vaadin.flow.component.button.Button;

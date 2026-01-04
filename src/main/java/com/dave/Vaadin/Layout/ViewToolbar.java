@@ -1,4 +1,4 @@
-package com.dave.Vaadin.ui;
+package com.dave.Vaadin.Layout;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Composite;

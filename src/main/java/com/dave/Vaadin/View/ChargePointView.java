@@ -1,4 +1,4 @@
-package com.dave.Vaadin.ui;
+package com.dave.Vaadin.View;
 
 import com.dave.Main.State.ChargePoint;
 import com.dave.Main.State.Observer;

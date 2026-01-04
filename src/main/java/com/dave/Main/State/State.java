@@ -18,11 +18,16 @@ public class State implements Observer, Observable {
     public void registerChargePoint(ChargePoint chargePoint) {
         chargePoint.addObserver(this);
         this.chargePoints.add(chargePoint);
-        this.onNotify();
+        this.notifyObservers();
     }
 
     public List<ChargePoint> getChargePoints() {
-        return chargePoints; // should be readonly but ok
+        return chargePoints;
+    }
+
+    public void removeChargePoint(ChargePoint chargePoint) {
+        this.chargePoints.remove(chargePoint);
+        this.notifyObservers();
     }
 
     @Override

@@ -1,4 +1,4 @@
-package com.dave.Vaadin.ui;
+package com.dave.Vaadin.Layout;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Unit;
@@ -6,7 +6,6 @@ import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
-import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.Scroller;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
