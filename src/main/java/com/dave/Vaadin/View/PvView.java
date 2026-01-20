@@ -10,9 +10,9 @@ import com.vaadin.flow.router.Menu;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
-@Route("/pv")
+@Route("")
 @PageTitle("Photovoltaic System")
-@Menu(order = 1, icon = "vaadin:bolt", title = "Photovoltaic System")
+@Menu(order = 0, icon = "vaadin:bolt", title = "Photovoltaic System")
 public class PvView extends VerticalLayout implements Observer<PvSystemEvent> {
 
     private final State state;

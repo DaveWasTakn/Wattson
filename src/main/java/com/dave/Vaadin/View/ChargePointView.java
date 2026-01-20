@@ -18,7 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 @Route("/chargePoints")
 @PageTitle("Charge Points")
-@Menu(order = 0, icon = "vaadin:connect", title = "ChargePoints")
+@Menu(order = 1, icon = "vaadin:connect", title = "ChargePoints")
 public class ChargePointView extends VerticalLayout implements Observer<ChargePointEvent> {
 
     private final State state;
