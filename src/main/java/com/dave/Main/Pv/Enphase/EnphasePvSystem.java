@@ -1,6 +1,7 @@
 package com.dave.Main.Pv.Enphase;
 
 import com.dave.Main.Exception.MissingConfigurationException;
+import com.dave.Main.Pv.Enphase.Model.EnphaseLiveDataStatus;
 import com.dave.Main.Pv.PvSystem;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +11,7 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
+import tools.jackson.databind.ObjectMapper;
 
 import java.time.Instant;
 import java.util.Map;
@@ -18,25 +20,17 @@ import java.util.Optional;
 @Service
 public class EnphasePvSystem implements PvSystem {
 
-//    @Value("${pv.enphase.enlighten.username}")
     private final String username;
-//    @Value("${pv.enphase.enlighten.password}")
     private final String password;
-//    @Value("${pv.enphase.gateway.serialNumber}")
     private final String gatewaySerialNumber;
-//    @Value("${pv.enphase.gateway.ip}")
     private final String gatewayIp;
 
-    //    @Value("${pv.enphase.apiToken}")
     private String apiToken;
-//    @Value("${pv.enphase.apiToken.timestamp}")
-//    private String apiToken_timestamp;
-//    @Value("${pv.enphase.apiToken.expiry}")
-//    private String apiToken_expiry;
 
     private final WebClient webClient;
     private final WebClient webClient_allowsSelfSigned;
     private final ApiTokenRepository apiTokenRepository;
+    private final ObjectMapper objectMapper;
 
     @Autowired
     public EnphasePvSystem(
@@ -46,7 +40,8 @@ public class EnphasePvSystem implements PvSystem {
             @Value("${pv.enphase.gateway.ip}") String gatewayIp,
             WebClient webClient,
             WebClient webClient_allowsSelfSigned,
-            ApiTokenRepository apiTokenRepository
+            ApiTokenRepository apiTokenRepository,
+            ObjectMapper objectMapper
     ) throws MissingConfigurationException {
         this.username = username;
         this.password = password;
@@ -55,6 +50,7 @@ public class EnphasePvSystem implements PvSystem {
         this.webClient = webClient;
         this.webClient_allowsSelfSigned = webClient_allowsSelfSigned;
         this.apiTokenRepository = apiTokenRepository;
+        this.objectMapper = objectMapper;
         this.init();
     }
 
@@ -81,7 +77,11 @@ public class EnphasePvSystem implements PvSystem {
     }
 
     public void test() {
-        String response = webClient_allowsSelfSigned.get()
+        System.out.println(requestLiveDataStatus());
+    }
+
+    private EnphaseLiveDataStatus requestLiveDataStatus() {
+        String response = this.webClient_allowsSelfSigned.get()
                 .uri("https://" + gatewayIp + "/ivp/livedata/status")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + this.apiToken)
                 .accept(MediaType.APPLICATION_JSON)
@@ -89,7 +89,7 @@ public class EnphasePvSystem implements PvSystem {
                 .bodyToMono(String.class)
                 .block();
 
-        System.out.println(response);
+        return objectMapper.readValue(response, EnphaseLiveDataStatus.class);
     }
 
     @Override
