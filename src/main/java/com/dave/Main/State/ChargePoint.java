@@ -1,12 +1,14 @@
 package com.dave.Main.State;
 
+import com.dave.Main.State.Observe.ChargePointEvent;
+
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-public class ChargePoint implements Observable {
+public class ChargePoint {
+
+    private final State state;
 
     private String ipAddress;
 
@@ -26,10 +28,10 @@ public class ChargePoint implements Observable {
     private Status status;
     private final Map<Integer, Connector> connectors = new HashMap<>();
 
-    private final List<Observer> observers = new ArrayList<>();
-
-    public ChargePoint(String ipAddress) {
+    public ChargePoint(State state, String ipAddress) {
+        this.state = state;
         this.ipAddress = ipAddress;
+        this.state.registerChargePoint(this);
     }
 
     public String getChargeBoxSerialNumber() {
@@ -38,7 +40,7 @@ public class ChargePoint implements Observable {
 
     public void setChargeBoxSerialNumber(String chargeBoxSerialNumber) {
         this.chargeBoxSerialNumber = chargeBoxSerialNumber;
-        this.notifyObservers();
+        this.dispatchChargepointEvent();
     }
 
     public String getModel() {
@@ -47,7 +49,7 @@ public class ChargePoint implements Observable {
 
     public void setModel(String model) {
         this.chargePointModel = model;
-        this.notifyObservers();
+        this.dispatchChargepointEvent();
     }
 
     public String getChargePointSerialNumber() {
@@ -56,7 +58,7 @@ public class ChargePoint implements Observable {
 
     public void setChargePointSerialNumber(String chargePointSerialNumber) {
         this.chargePointSerialNumber = chargePointSerialNumber;
-        this.notifyObservers();
+        this.dispatchChargepointEvent();
     }
 
     public String getVendor() {
@@ -65,7 +67,7 @@ public class ChargePoint implements Observable {
 
     public void setVendor(String vendor) {
         this.chargePointVendor = vendor;
-        this.notifyObservers();
+        this.dispatchChargepointEvent();
     }
 
     public String getFirmwareVersion() {
@@ -74,7 +76,7 @@ public class ChargePoint implements Observable {
 
     public void setFirmwareVersion(String firmwareVersion) {
         this.firmwareVersion = firmwareVersion;
-        this.notifyObservers();
+        this.dispatchChargepointEvent();
     }
 
     public String getIccid() {
@@ -83,7 +85,7 @@ public class ChargePoint implements Observable {
 
     public void setIccid(String iccid) {
         this.iccid = iccid;
-        this.notifyObservers();
+        this.dispatchChargepointEvent();
     }
 
     public String getImsi() {
@@ -92,7 +94,7 @@ public class ChargePoint implements Observable {
 
     public void setImsi(String imsi) {
         this.imsi = imsi;
-        this.notifyObservers();
+        this.dispatchChargepointEvent();
     }
 
     public String getIccd() {
@@ -101,7 +103,7 @@ public class ChargePoint implements Observable {
 
     public void setIccd(String iccd) {
         this.iccd = iccd;
-        this.notifyObservers();
+        this.dispatchChargepointEvent();
     }
 
     public String getMeterSerialNumber() {
@@ -110,7 +112,7 @@ public class ChargePoint implements Observable {
 
     public void setMeterSerialNumber(String meterSerialNumber) {
         this.meterSerialNumber = meterSerialNumber;
-        this.notifyObservers();
+        this.dispatchChargepointEvent();
     }
 
     public String getMeterType() {
@@ -119,7 +121,7 @@ public class ChargePoint implements Observable {
 
     public void setMeterType(String meterType) {
         this.meterType = meterType;
-        this.notifyObservers();
+        this.dispatchChargepointEvent();
     }
 
     public String getIpAddress() {
@@ -128,7 +130,7 @@ public class ChargePoint implements Observable {
 
     public void setIpAddress(String ipAddress) {
         this.ipAddress = ipAddress;
-        this.notifyObservers();
+        this.dispatchChargepointEvent();
     }
 
     public Instant getLastHeartbeat() {
@@ -137,7 +139,7 @@ public class ChargePoint implements Observable {
 
     public void setLastHeartbeat(Instant lastHeartbeat) {
         this.lastHeartbeat = lastHeartbeat;
-        this.notifyObservers();
+        this.dispatchChargepointEvent();
     }
 
     public Map<Integer, Connector> getConnectors() {
@@ -146,7 +148,7 @@ public class ChargePoint implements Observable {
 
     public void updateConnector(Connector connector) {
         this.connectors.put(connector.getConnectorId(), connector);
-        this.notifyObservers();
+        this.dispatchChargepointEvent();
     }
 
     @Override
@@ -175,21 +177,10 @@ public class ChargePoint implements Observable {
 
     public void setStatus(Status status) {
         this.status = status;
-        this.notifyObservers();
+        this.dispatchChargepointEvent();
     }
 
-    @Override
-    public void addObserver(Observer o) {
-        this.observers.add(o);
-    }
-
-    @Override
-    public void removeObserver(Observer o) {
-        this.observers.remove(o);
-    }
-
-    @Override
-    public void notifyObservers() {
-        this.observers.forEach(Observer::onNotify);
+    public void dispatchChargepointEvent() {
+        this.state.publish(new ChargePointEvent());
     }
 }

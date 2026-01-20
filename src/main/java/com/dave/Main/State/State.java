@@ -1,24 +1,43 @@
 package com.dave.Main.State;
 
+import com.dave.Main.Pv.PvSystem;
+import com.dave.Main.State.Observe.ChargePointEvent;
+import com.dave.Main.State.Observe.Observer;
+import com.dave.Main.State.Observe.StateEvent;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Component
-public class State implements Observer, Observable {
+public class State {
     private final List<ChargePoint> chargePoints = new ArrayList<>();
+    private final PvSystem pvSystem;
 
-    private final List<Observer> observers = new ArrayList<>();
+    private final Map<Class<? extends StateEvent>, List<Observer<? extends StateEvent>>> observers = new ConcurrentHashMap<>();
 
-    public void onNotify() {
-        this.notifyObservers();
+    @Autowired
+    public State(PvSystem pvSystem) {
+        this.pvSystem = pvSystem;
+    }
+
+    public <T extends StateEvent> void subscribe(Observer<T> observer, Class<T> type) {
+        this.observers.computeIfAbsent(type, _ -> new ArrayList<>()).add(observer);
+    }
+
+    public <T extends StateEvent> void publish(T event) {
+        List<Observer<? extends StateEvent>> observers = this.observers.get(event.getClass());
+        if (observers != null) {
+            observers.forEach(x -> ((Observer<T>) x).onNotify(event));
+        }
     }
 
     public void registerChargePoint(ChargePoint chargePoint) {
-        chargePoint.addObserver(this);
         this.chargePoints.add(chargePoint);
-        this.notifyObservers();
+        this.publish(new ChargePointEvent()); // TODO dont like this here
     }
 
     public List<ChargePoint> getChargePoints() {
@@ -27,7 +46,7 @@ public class State implements Observer, Observable {
 
     public void removeChargePoint(ChargePoint chargePoint) {
         this.chargePoints.remove(chargePoint);
-        this.notifyObservers();
+        this.publish(new ChargePointEvent());  // TODO dont like this here
     }
 
     @Override
@@ -37,18 +56,5 @@ public class State implements Observer, Observable {
                 '}';
     }
 
-    @Override
-    public void addObserver(Observer o) {
-        this.observers.add(o);
-    }
 
-    @Override
-    public void removeObserver(Observer o) {
-        this.observers.remove(o);
-    }
-
-    @Override
-    public void notifyObservers() {
-        this.observers.forEach(Observer::onNotify);
-    }
 }

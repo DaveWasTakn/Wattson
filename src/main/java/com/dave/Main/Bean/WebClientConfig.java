@@ -1,4 +1,4 @@
-package com.dave.Main;
+package com.dave.Main.Bean;
 
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory;

@@ -44,8 +44,7 @@ public class OcppSocketHandler implements Runnable {
         this.socket = socket;
         this.state = state;
         this.clientIp = socket.getInetAddress().getHostAddress();
-        this.chargePoint = new ChargePoint(clientIp);
-        this.state.registerChargePoint(this.chargePoint);
+        this.chargePoint = new ChargePoint(state, clientIp);
         try {
             this.inputStream = socket.getInputStream();
             this.outputStream = socket.getOutputStream();

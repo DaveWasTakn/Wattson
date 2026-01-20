@@ -45,6 +45,7 @@ public class OccpSpec_v16 extends OccpSpec {
 
     public void onCall_BootNotification(CallMsg message) throws IOException {
         fillAvailableFields(message.payload(), this.chargePoint);
+        this.chargePoint.dispatchChargepointEvent();
 
         ObjectNode payload = createPayload(
                 "currentTime", Utils.dateTime(),
@@ -70,6 +71,7 @@ public class OccpSpec_v16 extends OccpSpec {
     public void onCall_Heartbeat(CallMsg message) throws IOException {
         // TODO track if chargepoint is alive; register timer somewhere ? but need interval
         this.chargePoint.setLastHeartbeat(Instant.now());
+        this.chargePoint.dispatchChargepointEvent();
         this.streamProcessor.send(currentTimeCallResult(message.uniqueId()));
     }
 
@@ -92,6 +94,7 @@ public class OccpSpec_v16 extends OccpSpec {
             this.chargePoint.updateConnector(new Connector(connectorId, status));
         }
 
+        this.chargePoint.dispatchChargepointEvent();
         this.streamProcessor.send(new CallResultMsg(message.uniqueId(), new ObjectMapper().createObjectNode()).serialize());
     }
 
@@ -234,7 +237,6 @@ public class OccpSpec_v16 extends OccpSpec {
                 }
             }
         });
-        this.chargePoint.notifyObservers();
     }
 
 }

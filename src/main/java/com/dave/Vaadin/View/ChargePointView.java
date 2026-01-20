@@ -1,7 +1,8 @@
 package com.dave.Vaadin.View;
 
 import com.dave.Main.State.ChargePoint;
-import com.dave.Main.State.Observer;
+import com.dave.Main.State.Observe.ChargePointEvent;
+import com.dave.Main.State.Observe.Observer;
 import com.dave.Main.State.State;
 import com.dave.Vaadin.Layout.ViewToolbar;
 import com.vaadin.flow.component.AttachEvent;
@@ -18,7 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 @Route("/chargePoints")
 @PageTitle("Charge Points")
 @Menu(order = 0, icon = "vaadin:connect", title = "ChargePoints")
-public class ChargePointView extends VerticalLayout implements Observer {
+public class ChargePointView extends VerticalLayout implements Observer<ChargePointEvent> {
 
     private final State state;
 
@@ -28,7 +29,7 @@ public class ChargePointView extends VerticalLayout implements Observer {
     @Autowired
     public ChargePointView(State state) {
         this.state = state;
-        this.state.addObserver(this);
+        this.state.subscribe(this, ChargePointEvent.class);
 
         add(new ViewToolbar("Connected Charge Points"));
 
@@ -55,7 +56,7 @@ public class ChargePointView extends VerticalLayout implements Observer {
     }
 
     @Override
-    public void onNotify() {
+    public void onNotify(ChargePointEvent event) {
         if (this.ui != null) {
             this.ui.access(this::updateView);
         }
