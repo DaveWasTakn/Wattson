@@ -7,10 +7,13 @@ import com.dave.Main.State.Observe.PvSystemEvent;
 import com.dave.Main.State.State;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.annotation.PostConstruct;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -22,6 +25,7 @@ import java.util.Optional;
 
 @Service
 public class EnphasePvSystem implements PvSystem {
+    private static final Logger LOGGER = LoggerFactory.getLogger(EnphasePvSystem.class);
 
     private final String username;
     private final String password;
@@ -59,37 +63,30 @@ public class EnphasePvSystem implements PvSystem {
         this.apiTokenRepository = apiTokenRepository;
         this.objectMapper = objectMapper;
         this.state = state;
-        this.init();
     }
 
+    @PostConstruct
     private void init() throws MissingConfigurationException {
         if (gatewaySerialNumber == null || username == null || password == null || gatewayIp == null) {
             throw new MissingConfigurationException("Missing either 'gatewaySerialNumber' or 'username' or 'password' or 'gatewayIp' configuration in application.properties");
         }
         Optional<ApiToken> apiToken = this.apiTokenRepository.findFirstByOrderByIdDesc();
         if (apiToken.isPresent()) {
-            System.out.println("found api token");
+            LOGGER.info("Found existing API token");
             this.apiToken = apiToken.get().getToken();
         } else {
-            System.out.println("getting new api token");
+            LOGGER.warn("Fetching new API token");
             getAndSaveNewApiToken();
         }
     }
 
-    @PostConstruct
-    public void startPolling() {
-        Runnable polling = () -> {
-            while (true) {
-                try {
-                    Thread.sleep(1000); // TODO configure polling interval in properties
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-                this.updateStatus();
-            }
-        };
-
-        new Thread(polling).start();
+    @Scheduled(fixedDelayString = "${pv.poll.interval_ms:1000}")
+    public void poll() {
+        try {
+            this.updateStatus();
+        } catch (Exception e) {
+            LOGGER.error("Failed to poll Enphase status", e);
+        }
     }
 
     private void getAndSaveNewApiToken() { // TODO also call if 401 somewhere ?

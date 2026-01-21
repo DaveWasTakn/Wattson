@@ -62,7 +62,7 @@ public class PvView extends VerticalLayout implements Observer<PvSystemEvent> {
         Div formWrapper = new Div(form);
         formWrapper.setWidthFull();
         formWrapper.getStyle().set("display", "flex");
-        formWrapper.getStyle().set("justify-content", "center");
+        formWrapper.getStyle().set("justify-content", "right");
         formWrapper.getStyle().set("width", "100%");
 
         add(formWrapper);
