@@ -59,11 +59,13 @@ public class PvView extends VerticalLayout implements Observer<PvSystemEvent> {
         form.addFormItem(this.grid, "Grid");
         form.addFormItem(this.lastUpdate, "Last Update");
 
+        form.setWidth("20em");
+//        form.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1, FormLayout.ResponsiveStep.LabelsPosition.TOP));
+
         Div formWrapper = new Div(form);
         formWrapper.setWidthFull();
         formWrapper.getStyle().set("display", "flex");
-        formWrapper.getStyle().set("justify-content", "right");
-        formWrapper.getStyle().set("width", "100%");
+        formWrapper.getStyle().set("justify-content", "center");
 
         add(formWrapper);
 
