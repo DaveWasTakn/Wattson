@@ -3,7 +3,10 @@ package com.dave.Main.Pv.Enphase;
 import com.dave.Main.Exception.MissingConfigurationException;
 import com.dave.Main.Pv.Enphase.Model.EnphaseLiveDataStatus;
 import com.dave.Main.Pv.PvSystem;
+import com.dave.Main.State.Observe.PvSystemEvent;
+import com.dave.Main.State.State;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
@@ -31,6 +34,9 @@ public class EnphasePvSystem implements PvSystem {
     private final WebClient webClient_allowsSelfSigned;
     private final ApiTokenRepository apiTokenRepository;
     private final ObjectMapper objectMapper;
+    private final State state;
+
+    private EnphaseLiveDataStatus status;
 
     @Autowired
     public EnphasePvSystem(
@@ -41,7 +47,8 @@ public class EnphasePvSystem implements PvSystem {
             WebClient webClient,
             WebClient webClient_allowsSelfSigned,
             ApiTokenRepository apiTokenRepository,
-            ObjectMapper objectMapper
+            ObjectMapper objectMapper,
+            State state
     ) throws MissingConfigurationException {
         this.username = username;
         this.password = password;
@@ -51,6 +58,7 @@ public class EnphasePvSystem implements PvSystem {
         this.webClient_allowsSelfSigned = webClient_allowsSelfSigned;
         this.apiTokenRepository = apiTokenRepository;
         this.objectMapper = objectMapper;
+        this.state = state;
         this.init();
     }
 
@@ -66,8 +74,22 @@ public class EnphasePvSystem implements PvSystem {
             System.out.println("getting new api token");
             getAndSaveNewApiToken();
         }
+    }
 
-        test();
+    @PostConstruct
+    public void startPolling() {
+        Runnable polling = () -> {
+            while (true) {
+                try {
+                    Thread.sleep(1000); // TODO configure polling interval in properties
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+                this.updateStatus();
+            }
+        };
+
+        new Thread(polling).start();
     }
 
     private void getAndSaveNewApiToken() { // TODO also call if 401 somewhere ?
@@ -76,9 +98,44 @@ public class EnphasePvSystem implements PvSystem {
         this.apiToken = newToken;
     }
 
-    public void test() {
-        System.out.println(requestLiveDataStatus());
+    private void updateStatus() {
+        this.status = this.requestLiveDataStatus();
+        this.state.publish(new PvSystemEvent());
     }
+
+    /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    @Override
+    public int getCurrentWattProduction() {
+        return Math.toIntExact(this.status.meters().pv().agg_p_mw() / 1000);
+    }
+
+    @Override
+    public int getCurrentWattConsumption() {
+        return Math.toIntExact(this.status.meters().load().agg_p_mw() / 1000);
+    }
+
+    @Override
+    public int getBatteryWattPower() {
+        return Math.toIntExact(this.status.meters().storage().agg_p_mw() / 1000);
+    }
+
+    @Override
+    public int getGridWattPower() {
+        return Math.toIntExact(this.status.meters().grid().agg_p_mw() / 1000);
+    }
+
+    @Override
+    public int getBatterySocPercent() {
+        return this.status.meters().soc();
+    }
+
+    @Override
+    public long getLastMeterUpdateEpoch() {
+        return this.status.meters().last_update();
+    }
+
+    /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     private EnphaseLiveDataStatus requestLiveDataStatus() {
         String response = this.webClient_allowsSelfSigned.get()
@@ -90,26 +147,6 @@ public class EnphasePvSystem implements PvSystem {
                 .block();
 
         return objectMapper.readValue(response, EnphaseLiveDataStatus.class);
-    }
-
-    @Override
-    public int getCurrentKwhProduction() {
-        return 0;
-    }
-
-    @Override
-    public int getSmoothedKwhProduction() {
-        return 0;
-    }
-
-    @Override
-    public int getBatteryChargePercentage() {
-        return 0;
-    }
-
-    @Override
-    public int getBatteryChargeKwh() {
-        return 0;
     }
 
     private String getApiToken() {

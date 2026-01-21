@@ -2,12 +2,16 @@ package com.dave.Main.Pv;
 
 public interface PvSystem {
 
-    int getCurrentKwhProduction();
+    int getCurrentWattProduction();
 
-    int getSmoothedKwhProduction();
+    int getCurrentWattConsumption();
 
-    int getBatteryChargePercentage();
+    int getBatteryWattPower();
 
-    int getBatteryChargeKwh();
+    int getGridWattPower();
+
+    int getBatterySocPercent();
+
+    long getLastMeterUpdateEpoch();
 
 }

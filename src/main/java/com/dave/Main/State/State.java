@@ -1,10 +1,8 @@
 package com.dave.Main.State;
 
-import com.dave.Main.Pv.PvSystem;
 import com.dave.Main.State.Observe.ChargePointEvent;
 import com.dave.Main.State.Observe.Observer;
 import com.dave.Main.State.Observe.StateEvent;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -15,14 +13,8 @@ import java.util.concurrent.ConcurrentHashMap;
 @Component
 public class State {
     private final List<ChargePoint> chargePoints = new ArrayList<>();
-    private final PvSystem pvSystem;
 
     private final Map<Class<? extends StateEvent>, List<Observer<? extends StateEvent>>> observers = new ConcurrentHashMap<>();
-
-    @Autowired
-    public State(PvSystem pvSystem) {
-        this.pvSystem = pvSystem;
-    }
 
     public <T extends StateEvent> void subscribe(Observer<T> observer, Class<T> type) {
         this.observers.computeIfAbsent(type, _ -> new ArrayList<>()).add(observer);

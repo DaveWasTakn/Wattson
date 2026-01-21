@@ -16,14 +16,13 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import org.springframework.beans.factory.annotation.Autowired;
 
-@Route("/chargePoints")
+@Route("chargePoints")
 @PageTitle("Charge Points")
 @Menu(order = 1, icon = "vaadin:connect", title = "ChargePoints")
 public class ChargePointView extends VerticalLayout implements Observer<ChargePointEvent> {
-
+    private UI ui;
     private final State state;
 
-    private UI ui;
     private final Grid<ChargePoint> chargePointGrid;
 
     @Autowired
