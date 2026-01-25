@@ -80,7 +80,7 @@ public class EnphasePvSystem implements PvSystem {
         }
     }
 
-    @Scheduled(fixedDelayString = "${pv.poll.interval_ms:1000}")
+    @Scheduled(fixedDelayString = "${pv.poll.interval_ms:5000}")
     public void poll() {
         try {
             this.updateStatus();
@@ -104,22 +104,22 @@ public class EnphasePvSystem implements PvSystem {
 
     @Override
     public int getCurrentWattProduction() {
-        return Math.toIntExact(this.status.meters().pv().agg_p_mw() / 1000);
+        return mwToW(this.status.meters().pv().agg_p_mw());
     }
 
     @Override
     public int getCurrentWattConsumption() {
-        return Math.toIntExact(this.status.meters().load().agg_p_mw() / 1000);
+        return mwToW(this.status.meters().load().agg_p_mw());
     }
 
     @Override
     public int getBatteryWattPower() {
-        return Math.toIntExact(this.status.meters().storage().agg_p_mw() / 1000);
+        return mwToW(this.status.meters().storage().agg_p_mw());
     }
 
     @Override
     public int getGridWattPower() {
-        return Math.toIntExact(this.status.meters().grid().agg_p_mw() / 1000);
+        return mwToW(this.status.meters().grid().agg_p_mw());
     }
 
     @Override
@@ -130,6 +130,10 @@ public class EnphasePvSystem implements PvSystem {
     @Override
     public long getLastMeterUpdateEpoch() {
         return this.status.meters().last_update();
+    }
+
+    private static int mwToW(Long mw) {
+        return Math.toIntExact(mw / 1000);
     }
 
     /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
