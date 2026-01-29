@@ -70,7 +70,6 @@ public class EnphasePvSystem implements PvSystem {
 
     @EventListener(ApplicationReadyEvent.class)
     private void init() throws MissingConfigurationException {
-        System.out.println("EnphasePvSystem init");
         if (gatewaySerialNumber == null || username == null || password == null || gatewayIp == null) {
             throw new MissingConfigurationException("Missing either 'gatewaySerialNumber' or 'username' or 'password' or 'gatewayIp' configuration in application.properties");
         }
