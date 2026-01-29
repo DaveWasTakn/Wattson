@@ -16,7 +16,14 @@ state of charge, electricity pricing, as well as time of day, with support for u
 
 ## Quickstart
 
-TODO
+Clone this repo and set all properties in `src/main/resources/application-secret.properties`.
+Then run using docker compose:
+
+```shell
+docker compose up
+```
+
+TODO ...
 
 
 

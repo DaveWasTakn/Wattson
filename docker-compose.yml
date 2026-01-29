@@ -1,0 +1,39 @@
+services:
+
+  app:
+    build:
+      context: .
+    ports:
+      - "8080:8080"
+      - "1234:1234"
+    networks:
+      - app-db
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: postgres:18
+    restart: always
+    volumes:
+      - wattson_postgres_vol:/var/lib/postgresql
+    networks:
+      - app-db
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: wattson_db
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U admin -d wattson_db" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  wattson_postgres_vol:
+
+networks:
+  app-db:
+    driver: bridge

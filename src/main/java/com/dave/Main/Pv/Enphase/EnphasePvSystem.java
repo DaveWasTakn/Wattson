@@ -6,11 +6,12 @@ import com.dave.Main.Pv.PvSystem;
 import com.dave.Main.State.Observe.PvSystemEvent;
 import com.dave.Main.State.State;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -42,6 +43,8 @@ public class EnphasePvSystem implements PvSystem {
 
     private EnphaseLiveDataStatus status;
 
+    private volatile boolean initialized = false;
+
     @Autowired
     public EnphasePvSystem(
             @Value("${pv.enphase.enlighten.username}") String username,
@@ -65,8 +68,9 @@ public class EnphasePvSystem implements PvSystem {
         this.state = state;
     }
 
-    @PostConstruct
+    @EventListener(ApplicationReadyEvent.class)
     private void init() throws MissingConfigurationException {
+        System.out.println("EnphasePvSystem init");
         if (gatewaySerialNumber == null || username == null || password == null || gatewayIp == null) {
             throw new MissingConfigurationException("Missing either 'gatewaySerialNumber' or 'username' or 'password' or 'gatewayIp' configuration in application.properties");
         }
@@ -78,10 +82,14 @@ public class EnphasePvSystem implements PvSystem {
             LOGGER.warn("Fetching new API token");
             getAndSaveNewApiToken();
         }
+        initialized = true;
     }
 
     @Scheduled(fixedDelayString = "${pv.poll.interval_ms:5000}")
     public void poll() {
+        if (!initialized) {
+            return;
+        }
         try {
             this.updateStatus();
         } catch (Exception e) {
@@ -89,7 +97,7 @@ public class EnphasePvSystem implements PvSystem {
         }
     }
 
-    private void getAndSaveNewApiToken() { // TODO also call if 401 somewhere ?
+    private void getAndSaveNewApiToken() { // TODO also call if 401 somewhere !!
         String newToken = this.getApiToken();
         this.apiTokenRepository.save(new ApiToken(newToken, Instant.now()));
         this.apiToken = newToken;
