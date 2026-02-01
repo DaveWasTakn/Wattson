@@ -4,3 +4,25 @@ CREATE TABLE IF NOT EXISTS api_token
     timestamp TIMESTAMP WITH TIME ZONE,
     token     VARCHAR(4096)
 );
+
+CREATE TABLE IF NOT EXISTS pv_measurement
+(
+    timestamp                TIMESTAMP WITH TIME ZONE PRIMARY KEY,
+    current_watt_production  INTEGER,
+    current_watt_consumption INTEGER,
+    battery_watt_power       INTEGER,
+    grid_watt_power          INTEGER,
+    battery_soc_percent      INTEGER,
+    last_meter_update_epoch  BIGINT
+) WITH (
+      tsdb.hypertable,
+      tsdb.orderby = 'timestamp ASC'
+      );
+
+ALTER TABLE pv_measurement
+    SET (
+        timescaledb.compress,
+        timescaledb.compress_orderby = 'timestamp'
+        );
+
+SELECT add_compression_policy('pv_measurement', INTERVAL '6 Months');

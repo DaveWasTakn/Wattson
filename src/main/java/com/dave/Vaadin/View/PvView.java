@@ -2,7 +2,7 @@ package com.dave.Vaadin.View;
 
 import com.dave.Main.Pv.PvSystem;
 import com.dave.Main.State.Observe.Observer;
-import com.dave.Main.State.Observe.PvSystemEvent;
+import com.dave.Main.State.Observe.Event.PvSystemEvent;
 import com.dave.Main.State.State;
 import com.dave.Vaadin.Layout.ViewToolbar;
 import com.vaadin.flow.component.AttachEvent;

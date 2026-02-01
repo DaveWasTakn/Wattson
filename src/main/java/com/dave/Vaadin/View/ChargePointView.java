@@ -1,7 +1,7 @@
 package com.dave.Vaadin.View;
 
 import com.dave.Main.State.ChargePoint;
-import com.dave.Main.State.Observe.ChargePointEvent;
+import com.dave.Main.State.Observe.Event.ChargePointEvent;
 import com.dave.Main.State.Observe.Observer;
 import com.dave.Main.State.State;
 import com.dave.Vaadin.Layout.ViewToolbar;

@@ -3,7 +3,7 @@ package com.dave.Main.Pv.Enphase;
 import com.dave.Main.Exception.MissingConfigurationException;
 import com.dave.Main.Pv.Enphase.Model.EnphaseLiveDataStatus;
 import com.dave.Main.Pv.PvSystem;
-import com.dave.Main.State.Observe.PvSystemEvent;
+import com.dave.Main.State.Observe.Event.PvSystemStatusUpdateEvent;
 import com.dave.Main.State.State;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.slf4j.Logger;
@@ -104,7 +104,7 @@ public class EnphasePvSystem implements PvSystem {
 
     private void updateStatus() {
         this.status = this.requestLiveDataStatus();
-        this.state.publish(new PvSystemEvent());
+        this.state.publish(new PvSystemStatusUpdateEvent());
     }
 
     /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
