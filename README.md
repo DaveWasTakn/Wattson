@@ -20,13 +20,20 @@ Clone this repo and set all properties in `src/main/resources/application-secret
 Then run using docker compose:
 
 ```shell
-docker compose up
+docker compose up --build
 ```
 
 TODO ...
 
+# TODOS
 
-
+- Statistics Dashboard
+- Implement the rest of OCPP spec
+- Devise Charging Rules
+  - Adapt to current conditions
+  - Adapt to users' needs (i.e., ev charged 80% every weekday at 7 am)
+  - Custom rules?
+- Create actual README
 
 
 --------------------------------------------------------------------------------------------
