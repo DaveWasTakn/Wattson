@@ -25,4 +25,4 @@ ALTER TABLE pv_measurement
         timescaledb.compress_orderby = 'timestamp'
         );
 
-SELECT add_compression_policy('pv_measurement', INTERVAL '6 Months');
+SELECT add_compression_policy('pv_measurement', INTERVAL '6 Months', if_not_exists => true);
