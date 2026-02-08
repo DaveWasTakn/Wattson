@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Stream;
 
 @Component
 public class State {
@@ -21,10 +22,11 @@ public class State {
     }
 
     public <T extends StateEvent> void publish(T event) {
-        List<Observer<? extends StateEvent>> observers = this.observers.get(event.getClass());
-        if (observers != null) {
-            observers.forEach(x -> ((Observer<T>) x).onNotify(event));
-        }
+        this.observers.entrySet().stream()
+                .filter(e -> e.getKey().isAssignableFrom(event.getClass()))
+                .flatMap(e -> e.getValue().stream())
+                .map(observer -> (Observer<T>) observer)
+                .forEach(observer -> observer.onNotify(event));
     }
 
     public void registerChargePoint(ChargePoint chargePoint) {
@@ -45,8 +47,7 @@ public class State {
     public String toString() {
         return "State{" +
                 "chargePoints=" + chargePoints +
+                ", observers=" + observers +
                 '}';
     }
-
-
 }
