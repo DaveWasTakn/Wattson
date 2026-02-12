@@ -16,7 +16,7 @@ Currently works with Enphase PvSystems. (Other Systems can be supported by imple
 The goal is to develop a CSMS that optimizes EV charging by considering, e.g., solar energy production, solar-battery
 state of charge, electricity pricing, as well as time of day, with support for user-defined custom rules.
 
-## Screenshots (probably not up to date)
+## WIP Screenshots (probably not up to date)
 
 ![](/misc/pv.png)
 ![](/misc/statistics.png)

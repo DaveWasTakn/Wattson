@@ -13,10 +13,11 @@ import java.util.Map;
 @JsModule("./components/chartjs-chart.ts")
 @NpmPackage(value = "chart.js", version = "4.5.1")
 @NpmPackage(value = "chartjs-adapter-moment", version = "1.0.1")
+@NpmPackage(value = "chartjs-scale-timestack", version = "1.0.1")
 public class Chart extends Component implements HasSize {
 
     public void addDataPoint(int datasetIndex, Instant timestamp, Number dataPoint) {
-        getElement().callJsFunction("addDataPoint", datasetIndex, timestamp, dataPoint);
+        getElement().callJsFunction("addDataPoint", datasetIndex, timestamp.toEpochMilli(), dataPoint);
     }
 
     public void setDatasetLabel(int datasetIndex, String label) {
@@ -37,5 +38,9 @@ public class Chart extends Component implements HasSize {
 
     public void initChart(Map<String, Object> config) {
         getElement().callJsFunction("initChart", config);
+    }
+
+    public void setChartSlidingWindow(int timeMs) {
+        getElement().setProperty("WINDOW_SIZE_ms",  timeMs);
     }
 }

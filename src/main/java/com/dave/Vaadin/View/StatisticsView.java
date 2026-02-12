@@ -41,24 +41,25 @@ public class StatisticsView extends VerticalLayout implements Observer<PvSystemS
         add(new ViewToolbar("Statistics"));
 
         this.chart = new Chart();
-
+        this.chart.setChartSlidingWindow(1_000 * 60 * 15);
         this.chart.initChart(Map.of(
                 "type", "line",
                 "data", Map.of(
                         "datasets", List.of(
-                                Map.of("label", "Consumption", "data", List.of()),
-                                Map.of("label", "Production", "data", List.of()),
-                                Map.of("label", "Grid Power", "data", List.of()),
-                                Map.of("label", "Battery Power", "data", List.of())
+                                Map.of("label", "Consumption", "data", List.of(), "pointRadius", 0, "pointHoverRadius", 4),
+                                Map.of("label", "Production", "data", List.of(), "pointRadius", 0, "pointHoverRadius", 4),
+                                Map.of("label", "Grid Power", "data", List.of(), "pointRadius", 0, "pointHoverRadius", 4),
+                                Map.of("label", "Battery Power", "data", List.of(), "pointRadius", 0, "pointHoverRadius", 4)
                         )
                 ),
                 "options", Map.of(
+                        "normalized", true,
+                        "animation", false,
                         "responsive", true,
                         "maintainAspectRatio", false,
                         "scales", Map.of(
                                 "x", Map.of(
-                                        "type", "time",
-                                        "time", Map.of("unit", "minute"),
+                                        "type", "timestack",
                                         "title", Map.of(
                                                 "display", true,
                                                 "text", "Time"
@@ -70,6 +71,10 @@ public class StatisticsView extends VerticalLayout implements Observer<PvSystemS
                                                 "text", "Watt"
                                         )
                                 )
+                        ),
+                        "interaction", Map.of(
+                                "mode", "nearest",
+                                "intersect", false
                         )
                 )
         ));
